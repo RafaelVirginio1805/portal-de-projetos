@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PORTAL DE ANÁLISE DE PROJETOS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary-color: #00a335; 
+            --bg-color: #f8fafc;
+            --sidebar-width: 260px;
+            --sidebar-collapsed-width: 85px;
+            --text-color: #1e293b;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-color);
+        }
+
+        .watermark {
+            position: fixed;
+            top: 50%; left: 55%;
+            transform: translate(-50%, -50%);
+            width: 40%;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        nav {
+            width: var(--sidebar-width);
+            background: #ffffff;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            box-shadow: 10px 0 30px rgba(0,0,0,0.03);
+            z-index: 10;
+        }
+
+        nav.collapsed { width: var(--sidebar-collapsed-width); }
+
+        .nav-header {
+            padding: 20px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #logo-menu {
+            max-width: 110px;
+            height: 30px;
+            object-fit: contain;
+            transition: var(--transition);
+        }
+
+        nav.collapsed #logo-menu { opacity: 0; width: 0; }
+
+        .toggle-btn {
+            cursor: pointer;
+            background: #f1f5f9;
+            border: none;
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-color);
+        }
+
+        .menu-items { margin-top: 15px; list-style: none; padding: 0 12px; }
+
+        .menu-items li {
+            height: 48px;
+            margin: 8px 0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex; align-items: center;
+            color: #64748b;
+        }
+
+        .menu-content {
+            display: flex; align-items: center;
+            padding-left: 15px;
+            gap: 12px;
+            width: 100%;
+        }
+
+        nav.collapsed .menu-content { padding-left: 0; justify-content: center; gap: 0; }
+
+        .menu-items li:hover { background-color: #f0fdf4; color: var(--primary-color); }
+
+        .menu-items li.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 163, 53, 0.2);
+        }
+
+        nav.collapsed .label { display: none; }
+
+        main {
+            flex-grow: 1;
+            padding: 40px 60px;
+            z-index: 1;
+            overflow-y: auto;
+        }
+
+        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 30px; }
+
+        /* Estilos da Tabela (Coloque aqui para valer em todas as páginas carregadas) */
+        .table-container { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        .search-input { width: 300px; padding: 10px 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; outline: none; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; color: #64748b; border-bottom: 2px solid #f8fafc; font-size: 0.8rem; }
+        td { padding: 12px; border-bottom: 1px solid #f8fafc; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <img src="logo.svg" class="watermark">
+
+    <nav id="sidebar">
+        <div class="nav-header">
+            <img id="logo-menu" src="logo.svg">
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+        
+        <ul class="menu-items">
+            <li class="active" onclick="changeContent('Análise de Projetos', this, 'analise.html')">
+                <div class="menu-content">
+                    <i data-lucide="bar-chart-3"></i>
+                    <span class="label">Análise de Projetos</span>
+                </div>
+            </li>
+            <li onclick="changeContent('Minutas', this, 'minutas.html')">
+                <div class="menu-content">
+                    <i data-lucide="file-text"></i>
+                    <span class="label">Minutas</span>
+                </div>
+            </li>
+            <li onclick="changeContent('Incrementos', this, 'incrementos.html')">
+                <div class="menu-content">
+                    <i data-lucide="trending-up"></i>
+                    <span class="label">Incrementos</span>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <main>
+        <h1 id="page-title">Análise de Projetos</h1>
+        <div id="dynamic-content">
+            </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        async function changeContent(title, element, fileName) {
+            // Atualiza UI
+            document.getElementById('page-title').innerText = title;
+            document.querySelectorAll('.menu-items li').forEach(li => li.classList.remove('active'));
+            element.classList.add('active');
+
+            // Chamada Fetch para carregar o arquivo
+            try {
+                const response = await fetch(fileName);
+                const html = await response.text();
+                document.getElementById('dynamic-content').innerHTML = html;
+                lucide.createIcons(); // Reinicia ícones se houver no novo HTML
+            } catch (err) {
+                document.getElementById('dynamic-content').innerHTML = "<p>Página em construção...</p>";
+            }
+        }
+
+        // Carrega a primeira página ao iniciar
+        window.onload = () => {
+            const firstItem = document.querySelector('.menu-items li');
+            changeContent('Análise de Projetos', firstItem, 'analise.html');
+        };
+    </script>
+</body>
+</html>
